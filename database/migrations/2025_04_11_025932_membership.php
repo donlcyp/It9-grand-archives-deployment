@@ -19,12 +19,18 @@ return new class extends Migration
         });
 
         // Update users table to reference memberships
-        Schema::table('users', function (Blueprint $table) {
+        if (Schema::hasColumn('users', 'membership_id')) {
             // Drop the existing string membership_id column if it exists
-            $table->dropColumn('membership_id');
-            // Add foreign key to memberships table
-            $table->foreignId('membership_id')->nullable()->constrained('memberships')->onDelete('set null');
-        });
+            Schema::table('users', function (Blueprint $table) {
+                $table->dropColumn('membership_id');
+            });
+        }
+        if (!Schema::hasColumn('users', 'membership_id')) {
+            Schema::table('users', function (Blueprint $table) {
+                // Add foreign key to memberships table
+                $table->foreignId('membership_id')->nullable()->constrained('memberships')->onDelete('set null');
+            });
+        }
     }
 
     /**
